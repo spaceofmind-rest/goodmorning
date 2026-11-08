@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나만의 로맨스 캐릭터 찾기</title>
+<meta name="description" content="성인 애착유형 검사 ECR-36을 바탕으로, 사랑할 때의 나를 한 명의 캐릭터로 만나는 자가점검.">
+<meta name="theme-color" content="#FFFDF8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&family=Nanum+Gothic+Coding:wght@400;700&display=swap">
+<style>
+:root{
+  --ink:#1E2A22; --paper:#FFFDF8; --page:#E4E2DC; --muted:#4A544C;
+  --line:#D9CFBE; --soft:#F3EEE4; --track:#E9E2D4; --pick:#F3D9CD; --accent:#B23A24;
+  --mono:'Nanum Gothic Coding',ui-monospace,monospace;
+  --serif:'Gowun Batang',serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--page);color:var(--ink)}
+body{font-family:var(--mono);-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+button,input{font-family:inherit;color:inherit}
+.wrap{max-width:440px;margin:0 auto;min-height:100vh;min-height:100dvh;background:var(--paper);display:flex;flex-direction:column}
+.screen{flex:1;display:flex;flex-direction:column;gap:20px;padding:calc(40px + env(safe-area-inset-top)) 24px calc(28px + env(safe-area-inset-bottom))}
+@media (min-width:768px){body{padding:48px 16px}.wrap{min-height:calc(100vh - 96px);border:1px solid #CFC8BA}.screen{padding:48px 40px 40px}h1{font-size:38px}}
+.opt:hover{border-color:var(--ink)}
+.preview{display:flex;flex-direction:column;gap:10px;padding:16px;background:var(--soft)}
+.preview[hidden]{display:none}
+.preview img{width:100%;height:auto;border:1px solid var(--line);display:block}
+.preview p{margin:0;font-size:12px;line-height:1.6;color:var(--muted);text-align:center}
+.preview a{font-size:13px;color:var(--ink);text-align:center}
+.screen[hidden]{display:none}
+.top{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:var(--muted);white-space:nowrap}
+.cover{padding-bottom:18px;border-bottom:2px solid var(--ink);display:flex;flex-direction:column;gap:8px}
+.kicker{font-size:13px;color:var(--accent)}
+h1,h2{margin:0;font-family:var(--serif);font-weight:700;line-height:1.25}
+h1{font-size:34px}
+h2{font-size:30px;line-height:1.3}
+.credits{display:grid;grid-template-columns:76px minmax(0,1fr);row-gap:9px;margin:0;font-size:14px;line-height:1.55}
+.credits dt{color:var(--muted)}
+.credits dd{margin:0}
+.cast{font-weight:700}
+.note-box{padding:14px 16px;background:var(--soft);font-size:13px;line-height:1.7;color:#3A453D}
+.note-box p{margin:0}
+.note-box p+p{margin-top:6px}
+.bottom{margin-top:auto;display:flex;flex-direction:column;gap:10px}
+label.field{font-size:13px;font-weight:700}
+.input{height:48px;padding:0 14px;border:1.5px solid var(--ink);background:var(--paper);font-size:16px;border-radius:0}
+.input:focus{outline:2px solid var(--accent);outline-offset:2px}
+.btn{height:54px;border:0;background:var(--ink);color:var(--paper);font-size:15px;font-weight:700;cursor:pointer;border-radius:0}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--ink);font-weight:400}
+.btn:focus-visible,.opt:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.tiny{font-size:11px;color:var(--muted);text-align:center;line-height:1.6}
+.qhead{display:flex;justify-content:space-between;font-size:13px}
+.qhead b{font-weight:700}
+.qhead span{color:var(--muted)}
+.bar{height:4px;background:var(--track)}
+.bar i{display:block;height:4px;background:var(--accent);width:0;transition:width .25s}
+.dir{font-size:13px;color:var(--muted)}
+.q{margin:0;font-family:var(--serif);font-size:22px;line-height:1.55;font-weight:700;min-height:68px}
+.opts{display:flex;flex-direction:column;gap:6px}
+.opt{height:44px;padding:0 14px;border:1px solid var(--line);background:transparent;font-size:14px;text-align:left;cursor:pointer;border-radius:0}
+.opt[aria-pressed="true"]{border:2px solid var(--ink);background:var(--pick);font-weight:700}
+.opt[aria-pressed="true"]::after{content:"  ← 나라면"}
+.err{min-height:18px;font-size:13px;color:var(--accent)}
+.row{display:flex;gap:12px}
+.row .btn{height:52px;font-size:14px}
+.row .ghost{flex:1}
+.row .btn:not(.ghost){flex:2}
+.btn:disabled{opacity:.4;cursor:default}
+.score{display:flex;flex-direction:column;gap:12px;font-size:13px}
+.score div.s{display:flex;flex-direction:column;gap:6px}
+.score .l{display:flex;justify-content:space-between}
+.track{height:8px;background:var(--track)}
+.track i{display:block;height:8px;background:var(--accent)}
+.sec{display:flex;flex-direction:column;gap:8px}
+.sec h3{margin:0;font-size:12px;letter-spacing:.08em;color:var(--muted);font-weight:700;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.sec p{margin:0;font-size:14px;line-height:1.7}
+.sec ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.6}
+.sec li{display:flex;gap:10px}
+.sec li::before{content:"—";color:var(--accent);flex-shrink:0}
+.line{padding:18px 18px;background:var(--ink);color:var(--paper);display:flex;flex-direction:column;gap:8px}
+.line small{font-size:11px;letter-spacing:.12em;color:#D9CFBE}
+.line strong{font-family:var(--serif);font-size:19px;line-height:1.5}
+.foot{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 24px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);font-size:11px;line-height:1.5;color:var(--muted)}
+.foot a{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:0 4px;color:var(--ink);text-decoration:none;white-space:nowrap}
+.foot a:hover span{text-decoration:underline}
+.foot a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (min-width:768px){.foot{padding:14px 40px}}
+@media (max-width:420px){.foot a span{display:none}.foot a{min-width:44px;justify-content:center}}
+.endcredits{padding:14px 16px;background:var(--soft);display:flex;flex-direction:column;gap:5px;font-size:11px;line-height:1.6;color:#3A453D}
+</style>
+</head>
+<body>
+<main class="wrap">
+
+<section class="screen" id="intro" aria-labelledby="t-intro">
+  <div class="top"><span>Good morning, Actors! × Space of Mind</span><span>RT 7min</span></div>
+  <div class="cover">
+    <div class="kicker">TITLE</div>
+    <h1 id="t-intro">나만의 로맨스<br>캐릭터 찾기</h1>
+  </div>
+  <dl class="credits">
+    <dt>출연</dt><dd class="cast" data-cast>당신</dd>
+    <dt>원작</dt><dd>성인 애착유형 검사<br>ECR-36</dd>
+    <dt>감독</dt><dd>김은희</dd>
+    <dt>공동 제작</dt><dd>Good morning, Actors!<br>Space of Mind</dd>
+  </dl>
+  <div class="note-box">
+    <p>ECR은 친밀한 관계에서의 '관계 불안'과 '관계 회피'를 재는 성인 애착 척도예요. 두 마음의 조합으로 내 캐릭터가 정해져요.</p>
+    <p>친밀한 관계에서 느끼는 불안과 거리감은 사람마다 달라요. 정답은 없어요. 최근의 특정한 일보다 평소 관계에서의 모습을 떠올려 주세요.</p>
+  </div>
+  <div class="bottom">
+    <label class="field" for="cast-name">오늘의 배우 이름</label>
+    <input class="input" id="cast-name" type="text" maxlength="12" placeholder="이름을 적어주세요" autocomplete="off">
+    <button class="btn" type="button" id="start">대본 넘기기 →</button>
+    <div class="tiny">응답은 저장되지 않아요 · 모든 계산은 지금 쓰는 기기 안에서만 이루어져요</div>
+  </div>
+</section>
+
+<section class="screen" id="quiz" aria-labelledby="q-text" hidden>
+  <div class="qhead"><b id="q-scene">S#1.</b><span id="q-count">1 / 36</span></div>
+  <div class="bar" aria-hidden="true"><i id="q-bar"></i></div>
+  <div class="dir" id="q-dir"></div>
+  <p class="q" id="q-text"></p>
+  <div class="opts" id="opts" role="group" aria-labelledby="q-text"></div>
+  <div class="err" id="q-err" role="alert"></div>
+  <div class="row" style="margin-top:auto">
+    <button class="btn ghost" type="button" id="prev">이전</button>
+    <button class="btn" type="button" id="next">다음 →</button>
+  </div>
+</section>
+
+<section class="screen" id="result" aria-labelledby="r-name" hidden>
+  <div class="qhead"><b>S#36. 마지막 장면</b><span>THE END</span></div>
+  <div class="cover">
+    <div class="kicker">주연 · <span data-cast>당신</span></div>
+    <h2 id="r-name"></h2>
+    <div style="font-size:13px;color:var(--muted)" id="r-type"></div>
+  </div>
+  <div class="score">
+    <div class="s"><div class="l"><span>관계 불안</span><strong id="r-anx-l"></strong></div><div class="track"><i id="r-anx"></i></div></div>
+    <div class="s"><div class="l"><span>관계 회피</span><strong id="r-avo-l"></strong></div><div class="track"><i id="r-avo"></i></div></div>
+  </div>
+  <div class="sec"><h3>인물 설명</h3><p id="r-lead"></p></div>
+  <div class="sec"><h3>이 캐릭터의 힘</h3><p id="r-strength"></p></div>
+  <div class="sec"><h3>한 뼘 자라는 연습</h3><p id="r-goal" style="font-weight:700"></p><ul id="r-practice"></ul></div>
+  <div class="line"><small>캐릭터에게 건네는 한 문장</small><strong id="r-sentence"></strong></div>
+  <div class="endcredits">
+    <span>원작 · 성인 애착 척도 ECR(Experiences in Close Relationships)</span>
+    <span>관계 불안 · 관계 회피 두 차원으로 본 4가지 애착유형</span>
+    <span>진단이 아닌 자기 이해를 위한 참고 자료예요</span>
+    <span style="margin-top:6px">감독 · 김은희</span>
+    <span>공동 제작 · Good morning, Actors! × Space of Mind</span>
+    <span style="margin-top:6px;font-family:var(--serif);font-size:13px;color:var(--ink)">그리고, 오늘 함께한 배우들</span>
+  </div>
+  <div class="bottom" style="margin-top:4px">
+    <button class="btn" type="button" id="save">내 배역 카드 만들기</button>
+    <div class="preview" id="preview" hidden>
+      <img id="card-img" alt="내 배역 카드">
+      <p>휴대폰은 이미지를 길게 눌러 저장, PC는 우클릭 → 이미지 저장</p>
+      <a id="card-dl" href="#" download="로맨스캐릭터.png">파일로 내려받기</a>
+    </div>
+    <button class="btn ghost" type="button" id="again">처음부터 다시</button>
+  </div>
+</section>
+
+<footer class="foot">
+  <span><span style="white-space:nowrap">Copyright © Space of Mind 김은희.</span><br>All rights reserved.</span>
+  <a href="https://www.instagram.com/spaceofmind_rest/" target="_blank" rel="noopener" aria-label="Space of Mind 인스타그램 바로가기">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.6" fill="currentColor"/></svg>
+    <span>@spaceofmind_rest</span>
+  </a>
+</footer>
+
+</main>
+
+<script>
+(function(){
+  // ECR 36문항 (기존 '마음의 거리' 문항 그대로). 홀수=관계 회피(V), 짝수=관계 불안(A). r: 역채점
+  var items = [
+    ["내가 얼마나 호감을 가지고 있는지 상대방에게 보이고 싶지 않다.",0],
+    ["나는 버림을 받는 것에 대해 걱정하는 편이다.",0],
+    ["나는 다른 사람과 가까워지는 것이 매우 편안하다.",1],
+    ["나는 다른 사람과의 관계에 대해 많이 걱정하는 편이다.",0],
+    ["상대방이 막 나와 친해지려고 할 때 꺼려하는 나를 발견한다.",0],
+    ["내가 다른 사람에게 관심을 가지는 만큼 그들이 나에게 관심을 가지지 않을까 봐 걱정이다.",0],
+    ["나는 다른 사람이 나와 매우 가까워지려 할 때 불편하다.",0],
+    ["나는 나와 친한 사람을 잃을까 봐 꽤 걱정이 된다.",0],
+    ["나는 다른 사람에게 마음을 여는 것이 편안하지 못하다.",0],
+    ["나는 종종 내가 상대방에게 호의를 보이는 만큼 상대방도 그렇게 해 주기를 바란다.",0],
+    ["나는 상대방과 가까워지기를 원하지만 나는 생각을 바꾸어 그만둔다.",0],
+    ["나는 상대방과 하나가 되길 원하기 때문에 사람들이 때때로 나에게서 멀어진다.",0],
+    ["나는 다른 사람이 나와 너무 가까워졌을 때 예민해진다.",0],
+    ["나는 혼자 남겨질까 봐 걱정이다.",0],
+    ["나는 다른 사람에게 내 생각과 감정을 이야기하는 것이 편안하다.",1],
+    ["지나치게 친밀해지고자 하는 욕심 때문에 때로 사람들이 두려워하여 거리를 둔다.",0],
+    ["나는 상대방과 너무 가까워지는 것을 피하려고 한다.",0],
+    ["나는 상대방으로부터 사랑받고 있다는 것을 자주 확인받고 싶어 한다.",0],
+    ["나는 다른 사람과 가까워지는 것이 비교적 쉽다.",1],
+    ["가끔 나는 다른 사람에게 더 많은 애정과 더 많은 헌신을 보여줄 것을 강요한다.",0],
+    ["나는 다른 사람에게 의지하기가 어렵다.",0],
+    ["나는 버림받는 것에 대해 때때로 걱정하지 않는다.",1],
+    ["나는 다른 사람과 너무 가까워지는 것을 좋아하지 않는다.",0],
+    ["만약 상대방이 나에게 관심을 보이지 않는다면 나는 화가 난다.",0],
+    ["나는 상대방에게 모든 것을 이야기한다.",1],
+    ["상대방이 내가 원하는 만큼 가까워지는 것을 원치 않음을 안다.",0],
+    ["나는 대개 다른 사람에게 내 문제와 고민을 상의한다.",1],
+    ["내가 다른 사람과 교류가 없을 때 나는 다소 걱정스럽고 불안하다.",0],
+    ["다른 사람에게 의지하는 것이 편안하다.",1],
+    ["상대방이 내가 원하는 만큼 가까이에 있지 않을 때 실망하게 된다.",0],
+    ["나는 상대방에게 위로, 조언 또는 도움을 청하지 못한다.",0],
+    ["내가 필요로 할 때 상대방이 거절한다면 실망하게 된다.",0],
+    ["내가 필요로 할 때 상대방에게 의지하는 게 도움이 된다.",1],
+    ["상대방이 나에게 불만을 나타낼 때 나 자신이 정말 형편없게 느껴진다.",0],
+    ["나는 위로와 확신을 비롯한 많은 일들을 상대방에게 의지한다.",1],
+    ["상대방이 나를 떠나서 많은 시간을 보내면 나는 불쾌하다.",0]
+  ].map(function(x, i){ return { t: x[0], d: (i % 2 === 0) ? "V" : "A", r: !!x[1] }; });
+  var DIRS = [
+    "— 늦은 밤, 휴대폰 화면이 켜진다.",
+    "— 카페 창가, 맞은편 자리가 비어 있다.",
+    "— 주말 오후, 나란히 걷는 길.",
+    "— 답장이 오지 않은 지 한 시간째.",
+    "— 연인이 한 걸음 더 다가온다.",
+    "— 오랜만의 통화, 잠깐의 침묵.",
+    "— 비 오는 날, 우산 하나를 나눠 쓴다.",
+    "— 기념일 전날 밤.",
+    "— 다툰 다음 날 아침.",
+    "— 둘만의 저녁 식탁.",
+    "— 버스 정류장, 헤어지기 직전.",
+    "— 집으로 돌아가는 길, 혼자."
+  ];
+  var SCALE = ["전혀 아니다","아니다","보통이다","그렇다","매우 그렇다"];
+  var MAX = SCALE.length;   // 5점 척도
+  var CUT = 3.0;            // 5점 척도의 중간값 기준
+
+  var TYPES = {
+    secure: {
+      name: "곁을 지키는 햇살", type: "안정형 · 안심형",
+      lead: "가까워지는 것도, 혼자 있는 것도 비교적 편안한 캐릭터예요. 관계가 흔들려도 다시 균형을 찾는 회복의 힘이 있어요.",
+      strength: "곁에 있는 사람에게도 편안함을 나눠줄 수 있어요. 서운한 일이 생기면 쌓아두기보다 비교적 솔직하게 이야기해요.",
+      goal: "목표 · 지금의 편안함을 지키면서, 나와 상대를 함께 돌보는 균형 이어가기",
+      practice: ["지금의 편안함을 만들어 준 것(사람, 습관, 공간)을 세 가지 적어보기","지친 날에는 안정적인 사람도 쉬어야 한다는 걸 기억하고 내 몫의 휴식 챙기기","누군가의 불안을 대신 해결하려 하기보다 곁에서 들어주는 연습하기"],
+      sentence: "나는 가까워져도, 혼자 있어도 괜찮은 사람이다."
+    },
+    anxious: {
+      name: "답장을 기다리는 로맨티스트", type: "불안형 · 몰입형",
+      lead: "관계를 소중히 여기는 만큼, 상대의 작은 반응에도 마음이 크게 흔들리는 캐릭터예요.",
+      strength: "사람의 감정을 섬세하게 알아차리고, 관계에 진심을 다하는 힘이 있어요.",
+      goal: "목표 · 타인에게 과도하게 의존하지 않고 자기 안정감을 회복하기",
+      practice: ["하루 1번, '나만의 즐거움 리스트'에서 하나 실행하기 (예: 산책, 좋아하는 음악 듣기)","상대에게 연락이 없을 때 '해석 보류' 습관 만들기: 최소 3가지 다른 가능성을 적어보기","SNS·메신저 확인 횟수를 하루 5회 이하로 제한해 보기"],
+      sentence: "상대의 침묵이 나의 가치를 말해주지는 않는다."
+    },
+    avoidant: {
+      name: "혼자만의 방을 지키는 낭만가", type: "회피형 · 거부형",
+      lead: "혼자 해결하는 데 익숙하고, 누군가 너무 가까이 오면 답답함이 먼저 느껴지는 캐릭터예요.",
+      strength: "스스로 서는 힘이 있고, 상대의 공간도 존중할 줄 알아요.",
+      goal: "목표 · 혼자 서는 힘은 지키면서, 가까운 사람에게 조금씩 마음을 열기",
+      practice: ["하루 한 번, 작은 감정이라도 믿는 사람에게 한 문장으로 나눠보기","거리를 두고 싶을 때 말없이 멀어지기보다 '잠깐 혼자 정리할 시간이 필요해'라고 알리기","작은 도움을 한 번 요청해 보고, 그때 든 느낌을 적어보기"],
+      sentence: "기대는 것도 나를 지키는 방법이 될 수 있다."
+    },
+    fearful: {
+      name: "문 앞에서 망설이는 연인", type: "혼란형 · 두려움형",
+      lead: "가까워지고 싶은 마음과, 상처받을까 물러나고 싶은 마음이 함께 있는 캐릭터예요.",
+      strength: "관계를 깊이 고민하는 만큼, 다른 사람의 아픔에 누구보다 공감할 수 있어요.",
+      goal: "목표 · 다가가고 싶은 마음과 두려운 마음을 함께 인정하며, 안전한 관계 경험 쌓기",
+      practice: ["다가가고 싶은 마음과 물러나고 싶은 마음을 각각 적어, 둘 다 내 마음으로 인정하기","안전하다고 느끼는 한 사람과 작은 약속부터 지켜가며 신뢰 쌓기","마음이 요동칠 때는 생각보다 몸을 먼저 안정시키기 (천천히 숨쉬기, 따뜻한 음료)"],
+      sentence: "조심스러운 마음도 나를 아끼는 마음에서 왔다."
+    }
+  };
+
+  var $ = function(id){ return document.getElementById(id); };
+  var answers = new Array(items.length).fill(null);
+  var idx = 0, timer = null, last = null;
+
+  function castName(){ return ($("cast-name").value || "").trim() || "당신"; }
+  function syncCast(){
+    var n = castName();
+    document.querySelectorAll("[data-cast]").forEach(function(el){ el.textContent = n; });
+  }
+  function show(id){
+    ["intro","quiz","result"].forEach(function(s){ $(s).hidden = (s !== id); });
+    window.scrollTo(0,0);
+  }
+
+  // 선택지 버튼
+  var optsEl = $("opts");
+  SCALE.forEach(function(label, i){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "opt"; b.textContent = "(" + label + ")";
+    b.setAttribute("aria-pressed","false");
+    b.addEventListener("click", function(){ pick(i + 1); });
+    optsEl.appendChild(b);
+  });
+
+  function render(){
+    var it = items[idx];
+    $("q-scene").textContent = "S#" + (idx + 1) + ".";
+    $("q-count").textContent = (idx + 1) + " / " + items.length;
+    $("q-bar").style.width = ((idx) / items.length * 100) + "%";
+    $("q-dir").textContent = DIRS[idx % DIRS.length];
+    $("q-text").textContent = it.t;
+    $("q-err").textContent = "";
+    Array.prototype.forEach.call(optsEl.children, function(b, i){
+      b.setAttribute("aria-pressed", answers[idx] === i + 1 ? "true" : "false");
+    });
+    $("prev").textContent = idx === 0 ? "처음으로" : "S#" + idx;
+    $("next").textContent = idx === items.length - 1 ? "엔딩 보기 →" : "S#" + (idx + 2) + " →";
+  }
+  function pick(v){
+    answers[idx] = v;
+    render();
+    clearTimeout(timer);
+    if (idx < items.length - 1) timer = setTimeout(function(){ idx++; render(); }, 260);
+  }
+  $("next").addEventListener("click", function(){
+    clearTimeout(timer);
+    if (answers[idx] == null){ $("q-err").textContent = "나라면 어떨지 하나를 골라주세요."; return; }
+    if (idx < items.length - 1){ idx++; render(); return; }
+    var miss = answers.indexOf(null);
+    if (miss > -1){ idx = miss; render(); $("q-err").textContent = "아직 답하지 않은 장면이 있어요."; return; }
+    finish();
+  });
+  $("prev").addEventListener("click", function(){
+    clearTimeout(timer);
+    if (idx === 0){ show("intro"); return; }
+    idx--; render();
+  });
+
+  function mean(d){
+    var s = 0, n = 0;
+    items.forEach(function(it, i){
+      if (it.d !== d) return;
+      var v = answers[i]; if (it.r) v = MAX + 1 - v;
+      s += v; n++;
+    });
+    return s / n;
+  }
+  var R = null;
+  function finish(){
+    var anx = mean("A"), avo = mean("V");
+    var key = anx >= CUT ? (avo >= CUT ? "fearful" : "anxious") : (avo >= CUT ? "avoidant" : "secure");
+    var t = TYPES[key];
+    R = { t: t, anx: anx, avo: avo };
+    syncCast();
+    $("r-name").textContent = t.name;
+    $("r-type").textContent = t.type;
+    $("r-anx").style.width = ((anx - 1) / (MAX - 1) * 100) + "%";
+    $("r-avo").style.width = ((avo - 1) / (MAX - 1) * 100) + "%";
+    $("r-anx-l").textContent = (anx >= CUT ? "높음" : "낮음") + " · " + anx.toFixed(1);
+    $("r-avo-l").textContent = (avo >= CUT ? "높음" : "낮음") + " · " + avo.toFixed(1);
+    $("r-lead").textContent = t.lead;
+    $("r-strength").textContent = t.strength;
+    $("r-goal").textContent = t.goal;
+    var ul = $("r-practice"); ul.innerHTML = "";
+    t.practice.forEach(function(p){ var li = document.createElement("li"); li.textContent = p; ul.appendChild(li); });
+    $("r-sentence").textContent = t.sentence;
+    show("result");
+  }
+
+  $("cast-name").addEventListener("input", syncCast);
+  $("start").addEventListener("click", function(){ syncCast(); idx = answers.indexOf(null); if (idx < 0) idx = 0; render(); show("quiz"); });
+  $("again").addEventListener("click", function(){ answers.fill(null); idx = 0; $("preview").hidden = true; $("save").textContent = "내 배역 카드 만들기"; show("intro"); });
+
+  // 배역 카드 PNG 저장
+  function wrap(ctx, text, x, y, maxW, lh){
+    var line = "", lines = [], words = text.split(" ");
+    for (var i = 0; i < words.length; i++){
+      var test = line ? line + " " + words[i] : words[i];
+      if (ctx.measureText(test).width > maxW && line){ lines.push(line); line = words[i]; } else line = test;
+    }
+    if (line) lines.push(line);
+    lines.forEach(function(l, j){ ctx.fillText(l, x, y + j * lh); });
+    return y + lines.length * lh;
+  }
+  $("save").addEventListener("click", function(){
+    if (!R) return;
+    var go = function(){
+      var W = 1080, H = 1350, c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      var x = c.getContext("2d"), P = 96;
+      x.fillStyle = "#FFFDF8"; x.fillRect(0,0,W,H);
+      x.fillStyle = "#4A544C"; x.font = "400 26px 'Nanum Gothic Coding'";
+      x.fillText("Good morning, Actors! × Space of Mind", P, 130);
+      x.fillStyle = "#B23A24"; x.font = "700 30px 'Nanum Gothic Coding'";
+      x.fillText("주연 · " + castName(), P, 230);
+      x.fillStyle = "#1E2A22"; x.font = "700 76px 'Gowun Batang'";
+      var y = wrap(x, R.t.name, P, 330, W - P*2, 96);
+      x.fillStyle = "#4A544C"; x.font = "400 32px 'Nanum Gothic Coding'";
+      x.fillText(R.t.type, P, y + 10);
+      y += 60;
+      x.fillStyle = "#1E2A22"; x.fillRect(P, y, W - P*2, 4);
+      y += 80;
+      [["관계 불안", R.anx], ["관계 회피", R.avo]].forEach(function(s){
+        x.fillStyle = "#1E2A22"; x.font = "400 30px 'Nanum Gothic Coding'";
+        x.fillText(s[0], P, y);
+        x.textAlign = "right"; x.font = "700 30px 'Nanum Gothic Coding'";
+        x.fillText((s[1] >= CUT ? "높음" : "낮음") + " · " + s[1].toFixed(1), W - P, y);
+        x.textAlign = "left";
+        x.fillStyle = "#E9E2D4"; x.fillRect(P, y + 22, W - P*2, 16);
+        x.fillStyle = "#B23A24"; x.fillRect(P, y + 22, (W - P*2) * (s[1] - 1) / (MAX - 1), 16);
+        y += 110;
+      });
+      y += 20;
+      x.fillStyle = "#1E2A22"; x.fillRect(P, y, W - P*2, 260);
+      x.fillStyle = "#D9CFBE"; x.font = "400 24px 'Nanum Gothic Coding'";
+      x.fillText("캐릭터에게 건네는 한 문장", P + 44, y + 70);
+      x.fillStyle = "#FFFDF8"; x.font = "700 40px 'Gowun Batang'";
+      wrap(x, R.t.sentence, P + 44, y + 140, W - P*2 - 88, 58);
+      x.fillStyle = "#4A544C"; x.font = "400 22px 'Nanum Gothic Coding'";
+      x.fillText("원작 · 성인 애착 척도 ECR-36 · 진단이 아닌 자기 이해를 위한 참고 자료", P, H - 130);
+      x.fillText("감독 · 김은희 · 공동 제작 · Good morning, Actors! × Space of Mind", P, H - 90);
+      var url = c.toDataURL("image/png");
+      $("card-img").src = url;
+      $("card-dl").href = url;
+      $("card-dl").setAttribute("download", "로맨스캐릭터_" + castName() + ".png");
+      var framed = false; try { framed = window.self !== window.top; } catch (e) { framed = true; }
+      $("card-dl").hidden = framed;
+      $("preview").hidden = false;
+      $("save").textContent = "카드 다시 만들기";
+      $("preview").scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+  });
+})();
+</script>
+</body>
+</html>
